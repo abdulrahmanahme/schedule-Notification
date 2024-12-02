@@ -1,0 +1,7 @@
+<resources>
+    <!-- Preserve custom notification icons -->
+    <item type="drawable" name="ic_notification" />
+
+    <!-- Preserve custom notification sounds -->
+    <item type="raw" name="notification_sound" />
+</resources>
