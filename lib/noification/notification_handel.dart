@@ -43,6 +43,7 @@
 import 'dart:developer';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/material.dart';
@@ -190,13 +191,30 @@ class NotificationService {
     // Define the time for the notification
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     final tz.TZDateTime scheduledTime = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      10, // Set the hour (e.g., 9 AM)
-      16, // Set the minute
-    );
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        15, // Set the hour (e.g., 9 AM)
+        14,
+        5);
+
+    final tz.TZDateTime scheduledTime2 = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        15, // Set the hour (e.g., 9 AM)
+        15,
+        5);
+    final tz.TZDateTime scheduledTime3 = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        15, // Set the hour (e.g., 9 AM)
+        16,
+        5);
 
     // If the scheduled time is in the past, move it to the next day
     final tz.TZDateTime adjustedTime = scheduledTime.isBefore(now)
@@ -205,7 +223,7 @@ class NotificationService {
 
     await _notificationsPlugin.zonedSchedule(
       0, // Notification ID
-      'Daily Reminder at 8 :29', // Notification Title
+      'Daily Reminder at 1', // Notification Title
       'This is your daily scheduled notification!', // Notification Body
       adjustedTime,
       notificationDetails,
@@ -215,19 +233,42 @@ class NotificationService {
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
     );
+
+    await _notificationsPlugin.zonedSchedule(
+      2, // Notification ID
+      'Daily Reminder at 2', // Notification Title
+      'This is your daily scheduled notification!', // Notification Body
+      scheduledTime2,
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents:
+          DateTimeComponents.time, // Ensures it triggers daily at the same time
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+    await _notificationsPlugin.zonedSchedule(
+      3, // Notification ID
+      'Daily Reminder at 3', // Notification Title
+      'This is your daily scheduled notification!', // Notification Body
+      scheduledTime3,
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents:
+          DateTimeComponents.time, // Ensures it triggers daily at the same time
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
   }
 
-  static Future<void> scheduleNotificationOnSpecificDays(
-      //   {
-      //   required int hour,
-      //   required int minutes,
-      //   required int id,
-      //   required String sound,
-      // }
-      ) async {
+  static Future<void> scheduleNotification({
+    required int hour,
+    required int minutes,
+  }) async {
+    log('The time in Hour is $hour  in minutes $minutes');
     const AndroidNotificationDetails reminderChannel =
         AndroidNotificationDetails(
-      'reminder_channel',
+      'scheduleNotification On Time',
       'Reminder Notifications',
       channelDescription: 'Notifications for reminders',
       importance: Importance.high,
@@ -237,10 +278,42 @@ class NotificationService {
     const NotificationDetails notificationDetails =
         NotificationDetails(android: reminderChannel);
     await _notificationsPlugin.zonedSchedule(
-      2,
-      'Reminder',
+      5,
+      'Reminder Tuesday 232',
       'This is your reminder for the day!',
-      _convertTime(22, 19, 2),
+      _convertTime(hour, minutes),
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation
+              .absoluteTime, // Match both day and time
+    );
+  }
+
+  static Future<void> scheduleNotificationOnSpecificDays({
+    required String title,
+    required String body,
+    required int hour,
+    required int minutes,
+    required int id,
+  }) async {
+    AndroidNotificationDetails reminderChannel =
+        const AndroidNotificationDetails(
+      'Set Notification',
+      'schedule Notification channel',
+      channelDescription: 'Notifications for reminders',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    NotificationDetails notificationDetails =
+        NotificationDetails(android: reminderChannel);
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      _convertTime(hour, minutes),
       notificationDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
@@ -265,7 +338,7 @@ class NotificationService {
     );
   }
 
-  static tz.TZDateTime _convertTime(int hour, int minutes, int day) {
+  static tz.TZDateTime _convertTime(int hour, int minutes) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduleDate = tz.TZDateTime(
       tz.local,
@@ -275,6 +348,7 @@ class NotificationService {
       hour,
       minutes,
     );
+    log('The Day is  ${now.day}');
     // If the scheduled time is in the past, move it to the next day
     if (scheduleDate.isBefore(now)) {
       scheduleDate = scheduleDate.add(const Duration(days: 1));
@@ -283,5 +357,24 @@ class NotificationService {
   }
 
   cancelAll() async => await _notificationsPlugin.cancelAll();
-  cancel(id) async => await _notificationsPlugin.cancel(id);
+  static cancel(id) async => await _notificationsPlugin.cancel(id);
+
+  static Future<void> checkAndRequestNotificationPermission() async {
+    // Check if notification permission is granted (for Android 13+)
+    if (await Permission.notification.isGranted) {
+      print("Notification permission already granted.");
+    } else {
+      // Request notification permission
+      PermissionStatus status = await Permission.notification.request();
+      if (status.isGranted) {
+        log("Notification permission granted.");
+      } else if (status.isDenied) {
+        await Permission.notification.request();
+        log("Notification permission denied.");
+      } else if (status.isPermanentlyDenied) {
+        log("Notification permission permanently denied. Open settings to enable.");
+        openAppSettings();
+      }
+    }
+  }
 }
