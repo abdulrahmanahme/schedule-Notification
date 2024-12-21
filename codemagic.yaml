@@ -1,50 +1,49 @@
 workflows:
-  ios-unsigned:
-    name: iOS Unsigned Build
-    max_build_duration: 60
-    environment:
-      flutter: stable
-      xcode: latest
-      cocoapods: default
-    scripts:
-      - name: Clean project
-        script: |
-          flutter clean
-          flutter pub get
+  # ios-unsigned:
+  #   name: iOS Unsigned Build
+  #   max_build_duration: 60
+  #   environment:
+  #     flutter: stable
+  #     xcode: latest
+  #     cocoapods: default
+  #   scripts:
+  #     - name: Clean project
+  #       script: |
+  #         flutter clean
+  #         flutter pub get
 
-      - name: Build iOS release without code signing
-        script: |
-          flutter build ios --release --no-codesign
+  #     - name: Build iOS release without code signing
+  #       script: |
+  #         flutter build ios --release --no-codesign
 
-      - name: Create an archive
-        script: |
-          xcodebuild -workspace ios/Runner.xcworkspace \
-            -scheme Runner \
-            -sdk iphoneos \
-            -configuration Release archive \
-            -archivePath build/Runner.xcarchive \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+  #     - name: Create an archive
+  #       script: |
+  #         xcodebuild -workspace ios/Runner.xcworkspace \
+  #           -scheme Runner \
+  #           -sdk iphoneos \
+  #           -configuration Release archive \
+  #           -archivePath build/Runner.xcarchive \
+  #           CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
-      - name: Export unsigned IPA
-        script: |
-          xcodebuild -exportArchive \
-            -archivePath build/Runner.xcarchive \
-            -exportPath build/ios \
-            -exportOptionsPlist ios/ExportOptions.plist \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+  #     - name: Export unsigned IPA
+  #       script: |
+  #         xcodebuild -exportArchive \
+  #           -archivePath build/Runner.xcarchive \
+  #           -exportPath build/ios \
+  #           -exportOptionsPlist ios/ExportOptions.plist \
+  #           CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
-    artifacts:
-      - build/ios/*.ipa
-      - build/ios/Runner.xcarchive
+  #   artifacts:
+  #     - build/ios/*.ipa
+  #     - build/ios/Runner.xcarchive
 
-    publishing: 
-      email:
-        recipients:
-          - abdelramanahmed00@gmail.com
-        notify:
-          success: true
-          failure: false
-
+  #   publishing: 
+  #     email:
+  #       recipients:
+  #         - abdelramanahmed00@gmail.com
+  #       notify:
+  #         success: true
+  #         failure: false
   android-release:
     name: Android Release Build
     max_build_duration: 60
