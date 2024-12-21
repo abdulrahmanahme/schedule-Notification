@@ -70,8 +70,8 @@ workflows:
       email:
         recipients:
           - abdelramanahmed00@gmail.com
-       notify:
-       success: true
+        notify:
+        success: true
 
 # Trigger on push to main or specific branches
 trigger:
