@@ -3,6 +3,12 @@
 <plist version="1.0">
   <dict>
     <key>method</key>
-    <string>none</string> <!-- 'none' works for unsigned builds -->
+    <string>debugging</string>
+    <key>compileBitcode</key>
+    <false/>
+    <key>signingStyle</key>
+    <string>manual</string>
+    <key>signingCertificate</key>
+    <string>-</string>
   </dict>
 </plist>
