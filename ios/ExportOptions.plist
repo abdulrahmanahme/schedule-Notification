@@ -3,10 +3,6 @@
 <plist version="1.0">
   <dict>
     <key>method</key>
-    <string>development</string> <!-- Change this to 'ad-hoc' or 'app-store' if needed -->
-    <key>uploadSymbols</key>
-    <true/>
-    <key>teamID</key>
-    <string>YOUR_TEAM_ID</string> <!-- Optional, replace with your Team ID -->
+    <string>none</string> <!-- 'none' works for unsigned builds -->
   </dict>
 </plist>

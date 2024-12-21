@@ -30,7 +30,8 @@ workflows:
           xcodebuild -exportArchive \
             -archivePath build/Runner.xcarchive \
             -exportPath build/ios \
-            -exportOptionsPlist ios/ExportOptions.plist
+            -exportOptionsPlist ios/ExportOptions.plist \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
     artifacts:
       - build/ios/*.ipa
