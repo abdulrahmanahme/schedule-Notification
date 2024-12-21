@@ -1,0 +1,79 @@
+workflows:
+  ios-unsigned:
+    name: iOS Unsigned Build
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Clean project
+        script: |
+          flutter clean
+          flutter pub get
+
+      - name: Build iOS release without code signing
+        script: |
+          flutter build ios --release --no-codesign
+
+      - name: Create an archive
+        script: |
+          xcodebuild -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphoneos \
+            -configuration Release archive \
+            -archivePath build/Runner.xcarchive \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+      - name: Export unsigned IPA
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath build/Runner.xcarchive \
+            -exportPath build/ios \
+            -exportOptionsPlist ios/ExportOptions.plist
+
+    artifacts:
+      - build/ios/*.ipa
+      - build/ios/Runner.xcarchive
+
+    publishing:
+      email:
+        recipients:
+          - abdelramanahmed00@gmail.com
+        notify: SUCCESS
+
+  android-release:
+    name: Android Release Build
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      java: 11
+    scripts:
+      - name: Clean project
+        script: |
+          flutter clean
+          flutter pub get
+
+      - name: Build Android release APK
+        script: |
+          flutter build apk --release
+
+      - name: Build Android release App Bundle
+        script: |
+          flutter build appbundle --release
+
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
+
+    publishing:
+      email:
+        recipients:
+          - abdelramanahmed00@gmail.com
+        notify: SUCCESS
+
+# Trigger on push to main or specific branches
+trigger:
+  branches:
+    - main  # You can add other branches here, e.g., 'dev', 'release', etc.
+  events:
+    - push
