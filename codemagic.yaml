@@ -40,7 +40,8 @@ workflows:
       email:
         recipients:
           - abdelramanahmed00@gmail.com
-        notify: SUCCESS
+        notify:
+        success: true
 
   android-release:
     name: Android Release Build
@@ -69,7 +70,8 @@ workflows:
       email:
         recipients:
           - abdelramanahmed00@gmail.com
-        notify: SUCCESS
+       notify:
+       success: true
 
 # Trigger on push to main or specific branches
 trigger:
